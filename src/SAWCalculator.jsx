@@ -14,6 +14,9 @@ const SAWCalculator = () => {
     nama: '', nilai1: '', nilai2: '', nilai3: '', nilai4: '' 
   });
 
+  // --- TAMBAHAN FITUR DARK MODE ---
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
   useEffect(() => {
     fetchDataDariAPI();
   }, []);
@@ -186,45 +189,67 @@ const SAWCalculator = () => {
       
     } catch (error) {
       console.error("Gagal membuat PDF:", error);
-      alert("Maaf, terjadi kesalahan saat membuat PDF. Cek Console (F12).");
+      alert("Maaf, terjadi kesalahan saat membuat PDF.");
     }
   };
 
+  // KUMPULAN KELAS CSS DINAMIS UNTUK DARK/LIGHT MODE
+  const themeBg = isDarkMode ? 'bg-slate-900 text-slate-200' : 'bg-slate-100 text-slate-800';
+  const cardBg = isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200';
+  const textTitle = isDarkMode ? 'text-white' : 'text-slate-800';
+  const textSubtitle = isDarkMode ? 'text-slate-300' : 'text-slate-700';
+  const inputBg = isDarkMode ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' : 'bg-slate-50 border-gray-300';
+  const tableHeaderBg = isDarkMode ? 'bg-black text-slate-200' : 'bg-slate-800 text-white';
+  const tableRowHover = isDarkMode ? 'hover:bg-slate-700 border-slate-700' : 'hover:bg-slate-50 border-b';
+  const analysisBg = isDarkMode ? 'bg-indigo-950 border-indigo-500' : 'bg-indigo-50 border-indigo-600';
+  const analysisText = isDarkMode ? 'text-indigo-200' : 'text-slate-700';
+
   return (
-    <div className="p-8 bg-slate-100 min-h-screen font-sans">
-      <h1 className="text-3xl font-bold mb-8 text-slate-800">Sistem Pendukung Keputusan (SAW)</h1>
+    <div className={`p-8 min-h-screen font-sans transition-colors duration-500 ${themeBg}`}>
       
-      <div className="bg-white p-6 rounded-lg shadow-md mb-8 border-t-4 border-blue-600">
-        <h2 className="text-xl font-bold mb-4 text-slate-700">
+      {/* HEADER & TOMBOL SAKLAR DARK MODE */}
+      <div className="flex justify-between items-center mb-8">
+        <h1 className={`text-3xl font-bold ${textTitle}`}>Sistem Pendukung Keputusan (SAW)</h1>
+        <button 
+          onClick={() => setIsDarkMode(!isDarkMode)} 
+          className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all shadow-md ${isDarkMode ? 'bg-amber-400 text-slate-900 hover:bg-amber-300' : 'bg-slate-800 text-white hover:bg-slate-700'}`}
+        >
+          {isDarkMode ? '☀️' : '🌙'}
+        </button>
+      </div>
+      
+      {/* KOTAK FORM */}
+      <div className={`p-6 rounded-lg shadow-md mb-8 border-t-4 border-blue-600 transition-colors duration-500 ${cardBg}`}>
+        <h2 className={`text-xl font-bold mb-4 ${textTitle}`}>
           {editId ? "✏️ Edit Data Supplier" : "➕ Tambah Supplier Baru"}
         </h2>
         <form onSubmit={handleSubmit} className="flex flex-wrap gap-4 items-end">
           <div className="flex flex-col">
-            <label className="text-sm font-semibold mb-1">Nama Supplier</label>
-            <input required type="text" className="border p-2 rounded w-48 bg-slate-50" value={formData.nama} onChange={(e) => setFormData({...formData, nama: e.target.value})} />
+            <label className={`text-sm font-semibold mb-1 ${textSubtitle}`}>Nama Supplier</label>
+            <input required type="text" className={`border p-2 rounded w-48 transition-colors ${inputBg}`} value={formData.nama} onChange={(e) => setFormData({...formData, nama: e.target.value})} />
           </div>
           <div className="flex flex-col">
-            <label className="text-sm font-semibold mb-1">Harga (Cost)</label>
-            <input required type="number" className="border p-2 rounded w-28 bg-slate-50" value={formData.nilai1} onChange={(e) => setFormData({...formData, nilai1: e.target.value})} />
+            <label className={`text-sm font-semibold mb-1 ${textSubtitle}`}>Harga (Cost)</label>
+            <input required type="number" className={`border p-2 rounded w-28 transition-colors ${inputBg}`} value={formData.nilai1} onChange={(e) => setFormData({...formData, nilai1: e.target.value})} />
           </div>
           <div className="flex flex-col">
-            <label className="text-sm font-semibold mb-1">Kualitas (Benefit)</label>
-            <input required type="number" className="border p-2 rounded w-32 bg-slate-50" value={formData.nilai2} onChange={(e) => setFormData({...formData, nilai2: e.target.value})} />
+            <label className={`text-sm font-semibold mb-1 ${textSubtitle}`}>Kualitas (Benefit)</label>
+            <input required type="number" className={`border p-2 rounded w-32 transition-colors ${inputBg}`} value={formData.nilai2} onChange={(e) => setFormData({...formData, nilai2: e.target.value})} />
           </div>
           <div className="flex flex-col">
-            <label className="text-sm font-semibold mb-1">Pengiriman (Cost)</label>
-            <input required type="number" className="border p-2 rounded w-32 bg-slate-50" value={formData.nilai3} onChange={(e) => setFormData({...formData, nilai3: e.target.value})} />
+            <label className={`text-sm font-semibold mb-1 ${textSubtitle}`}>Pengiriman (Cost)</label>
+            <input required type="number" className={`border p-2 rounded w-32 transition-colors ${inputBg}`} value={formData.nilai3} onChange={(e) => setFormData({...formData, nilai3: e.target.value})} />
           </div>
           <div className="flex flex-col">
-            <label className="text-sm font-semibold mb-1">Layanan (Benefit)</label>
-            <input required type="number" className="border p-2 rounded w-32 bg-slate-50" value={formData.nilai4} onChange={(e) => setFormData({...formData, nilai4: e.target.value})} />
+            <label className={`text-sm font-semibold mb-1 ${textSubtitle}`}>Layanan (Benefit)</label>
+            <input required type="number" className={`border p-2 rounded w-32 transition-colors ${inputBg}`} value={formData.nilai4} onChange={(e) => setFormData({...formData, nilai4: e.target.value})} />
           </div>
           <div className="flex gap-2">
             <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded transition-colors shadow-sm">
               {editId ? "Update Data" : "Simpan"}
             </button>
             {editId && (
-              <button type="button" onClick={resetForm} className="bg-gray-300 hover:bg-gray-400 text-slate-800 font-bold py-2 px-4 rounded transition-colors">
+              <button type="button" onClick={resetForm} className={`font-bold py-2 px-4 rounded transition-colors ${isDarkMode ? 'bg-slate-600 text-white hover:bg-slate-500' : 'bg-gray-300 text-slate-800 hover:bg-gray-400'}`}>
                 Batal
               </button>
             )}
@@ -233,7 +258,7 @@ const SAWCalculator = () => {
       </div>
 
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-slate-800">Tabel Hasil Perankingan</h2>
+        <h2 className={`text-xl font-bold ${textTitle}`}>Tabel Hasil Perankingan</h2>
         {hasil.length > 0 && (
           <button onClick={cetakPDF} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-5 rounded-lg shadow-md transition-colors flex items-center gap-2">
             📄 Cetak PDF
@@ -241,10 +266,11 @@ const SAWCalculator = () => {
         )}
       </div>
 
-      <div className="bg-white shadow-md rounded-lg overflow-hidden border border-slate-200">
+      {/* KOTAK TABEL */}
+      <div className={`shadow-md rounded-lg overflow-hidden border transition-colors duration-500 ${cardBg}`}>
         <table className="min-w-full text-left border-collapse">
           <thead>
-            <tr className="bg-slate-800 text-white text-sm uppercase tracking-wider">
+            <tr className={`text-sm uppercase tracking-wider ${tableHeaderBg}`}>
               <th className="px-5 py-4 font-medium">Peringkat</th>
               <th className="px-5 py-4 font-medium">Nama Supplier</th>
               <th className="px-5 py-4 font-medium">Skor Akhir (V)</th>
@@ -254,13 +280,13 @@ const SAWCalculator = () => {
           </thead>
           <tbody>
             {hasil.map((item, index) => (
-              <tr key={item.id} className="border-b hover:bg-slate-50 transition-colors">
-                <td className="px-5 py-4 font-bold text-lg text-slate-700">{index + 1}</td>
-                <td className="px-5 py-4 font-semibold text-slate-800">{item.nama}</td>
-                <td className="px-5 py-4 text-blue-600 font-bold text-lg">{item.skor}</td>
+              <tr key={item.id} className={`transition-colors border-b ${tableRowHover}`}>
+                <td className={`px-5 py-4 font-bold text-lg ${textTitle}`}>{index + 1}</td>
+                <td className={`px-5 py-4 font-semibold ${isDarkMode ? 'text-slate-200' : 'text-slate-800'}`}>{item.nama}</td>
+                <td className={`px-5 py-4 font-bold text-lg ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>{item.skor}</td>
                 <td className="px-5 py-4">
                   {index === 0 ? (
-                    <span className="bg-emerald-100 text-emerald-700 border border-emerald-300 px-3 py-1 rounded-full text-xs font-bold shadow-sm">
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm border ${isDarkMode ? 'bg-emerald-900/50 text-emerald-400 border-emerald-700' : 'bg-emerald-100 text-emerald-700 border-emerald-300'}`}>
                       ✨ Pilihan Utama
                     </span>
                   ) : (
@@ -268,10 +294,10 @@ const SAWCalculator = () => {
                   )}
                 </td>
                 <td className="px-5 py-4 flex gap-2">
-                  <button onClick={() => klikEdit(item)} className="bg-amber-100 text-amber-700 hover:bg-amber-200 px-3 py-1 rounded text-sm font-bold transition-colors">
+                  <button onClick={() => klikEdit(item)} className={`px-3 py-1 rounded text-sm font-bold transition-colors ${isDarkMode ? 'bg-amber-900/50 text-amber-400 hover:bg-amber-800' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'}`}>
                     Edit
                   </button>
-                  <button onClick={() => handleHapus(item.id)} className="bg-red-100 text-red-600 hover:bg-red-200 px-3 py-1 rounded text-sm font-bold transition-colors">
+                  <button onClick={() => handleHapus(item.id)} className={`px-3 py-1 rounded text-sm font-bold transition-colors ${isDarkMode ? 'bg-red-900/50 text-red-400 hover:bg-red-800' : 'bg-red-100 text-red-600 hover:bg-red-200'}`}>
                     Hapus
                   </button>
                 </td>
@@ -281,11 +307,12 @@ const SAWCalculator = () => {
         </table>
       </div>
 
+      {/* KOTAK KESIMPULAN */}
       {hasil.length > 0 && (
-        <div className="mt-6 bg-indigo-50 border-l-4 border-indigo-600 p-6 rounded shadow-sm">
-          <h3 className="text-lg font-bold text-indigo-900 mb-2">💡 Analisis & Kesimpulan Keputusan</h3>
-          <p className="text-slate-700 leading-relaxed text-justify">
-            Berdasarkan hasil perhitungan menggunakan algoritma Simple Additive Weighting (SAW) terhadap <strong>{hasil.length}</strong> alternatif supplier yang ada, sistem secara objektif merekomendasikan <strong>{hasil[0].nama}</strong> sebagai keputusan terbaik dengan perolehan skor preferensi (V) tertinggi sebesar <strong>{hasil[0].skor}</strong>. 
+        <div className={`mt-6 border-l-4 p-6 rounded shadow-sm transition-colors duration-500 ${analysisBg}`}>
+          <h3 className={`text-lg font-bold mb-2 ${isDarkMode ? 'text-indigo-300' : 'text-indigo-900'}`}>💡 Analisis & Kesimpulan Keputusan</h3>
+          <p className={`leading-relaxed text-justify ${analysisText}`}>
+            Berdasarkan hasil perhitungan menggunakan algoritma Simple Additive Weighting (SAW) terhadap <strong className={isDarkMode ? 'text-white' : 'text-black'}>{hasil.length}</strong> alternatif supplier yang ada, sistem secara objektif merekomendasikan <strong className={isDarkMode ? 'text-white' : 'text-black'}>{hasil[0].nama}</strong> sebagai keputusan terbaik dengan perolehan skor preferensi (V) tertinggi sebesar <strong className={isDarkMode ? 'text-white' : 'text-black'}>{hasil[0].skor}</strong>. 
             <br/><br/>
             Supplier ini terpilih karena memiliki perbandingan yang paling optimal antara kriteria biaya (seperti harga barang dan ongkos kirim) dengan kriteria keuntungan (seperti kualitas dan layanan garansi), menjadikannya kandidat paling efisien dan menguntungkan bagi perusahaan.
           </p>
