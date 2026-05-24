@@ -17,9 +17,38 @@ const SAWCalculator = () => {
   // --- TAMBAHAN FITUR DARK MODE ---
   const [isDarkMode, setIsDarkMode] = useState(false);
 
+  // --- ROLE ---
+  const [userRole, setUserRole] = useState(null);
+  const [newUser, setNewUser] = useState({ username: '', password: '', role: 'user' });
+
   useEffect(() => {
+    setUserRole(localStorage.getItem('role_spk'));
     fetchDataDariAPI();
   }, []);
+
+  const handleTambahUser = async (e) => {
+    e.preventDefault();
+    const tiket = localStorage.getItem('token_spk');
+    try {
+      const response = await fetch('https://backend-spk-saw.vercel.app/api/tambah-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${tiket}`
+        },
+        body: JSON.stringify(newUser)
+      });
+      const data = await response.json();
+      if (response.ok) {
+        alert("User berhasil ditambahkan!");
+        setNewUser({ username: '', password: '', role: 'user' });
+      } else {
+        alert(data.detail || "Gagal menambah user.");
+      }
+    } catch (error) {
+      alert("Error menghubungi server.");
+    }
+  };
 
   // 1. GET DATA (Nggak perlu tiket karena publik)
   const fetchDataDariAPI = async () => {
@@ -294,12 +323,16 @@ const SAWCalculator = () => {
                   )}
                 </td>
                 <td className="px-5 py-4 flex gap-2">
-                  <button onClick={() => klikEdit(item)} className={`px-3 py-1 rounded text-sm font-bold transition-colors ${isDarkMode ? 'bg-amber-900/50 text-amber-400 hover:bg-amber-800' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'}`}>
-                    Edit
-                  </button>
-                  <button onClick={() => handleHapus(item.id)} className={`px-3 py-1 rounded text-sm font-bold transition-colors ${isDarkMode ? 'bg-red-900/50 text-red-400 hover:bg-red-800' : 'bg-red-100 text-red-600 hover:bg-red-200'}`}>
-                    Hapus
-                  </button>
+                  {userRole === 'admin' && (
+                    <>
+                      <button onClick={() => klikEdit(item)} className={`px-3 py-1 rounded text-sm font-bold transition-colors ${isDarkMode ? 'bg-amber-900/50 text-amber-400 hover:bg-amber-800' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'}`}>
+                        Edit
+                      </button>
+                      <button onClick={() => handleHapus(item.id)} className={`px-3 py-1 rounded text-sm font-bold transition-colors ${isDarkMode ? 'bg-red-900/50 text-red-400 hover:bg-red-800' : 'bg-red-100 text-red-600 hover:bg-red-200'}`}>
+                        Hapus
+                      </button>
+                    </>
+                  )}
                 </td>
               </tr>
             ))}
@@ -316,6 +349,35 @@ const SAWCalculator = () => {
             <br/><br/>
             Supplier ini terpilih karena memiliki perbandingan yang paling optimal antara kriteria biaya (seperti harga barang dan ongkos kirim) dengan kriteria keuntungan (seperti kualitas dan layanan garansi), menjadikannya kandidat paling efisien dan menguntungkan bagi perusahaan.
           </p>
+        </div>
+      )}
+
+      {/* ADMIN PANEL: TAMBAH USER */}
+      {userRole === 'admin' && (
+        <div className={`mt-8 p-6 rounded-lg shadow-md border-t-4 border-emerald-600 transition-colors duration-500 ${cardBg}`}>
+          <h2 className={`text-xl font-bold mb-4 ${textTitle}`}>🛡️ Admin Panel - Tambah User</h2>
+          <form onSubmit={handleTambahUser} className="flex flex-wrap gap-4 items-end">
+            <div className="flex flex-col">
+              <label className={`text-sm font-semibold mb-1 ${textSubtitle}`}>Username</label>
+              <input required type="text" className={`border p-2 rounded w-48 transition-colors ${inputBg}`} value={newUser.username} onChange={(e) => setNewUser({...newUser, username: e.target.value})} />
+            </div>
+            <div className="flex flex-col">
+              <label className={`text-sm font-semibold mb-1 ${textSubtitle}`}>Password</label>
+              <input required type="password" className={`border p-2 rounded w-48 transition-colors ${inputBg}`} value={newUser.password} onChange={(e) => setNewUser({...newUser, password: e.target.value})} />
+            </div>
+            <div className="flex flex-col">
+              <label className={`text-sm font-semibold mb-1 ${textSubtitle}`}>Role</label>
+              <select required className={`border p-2 rounded w-56 transition-colors ${inputBg}`} value={newUser.role} onChange={(e) => setNewUser({...newUser, role: e.target.value})}>
+                <option value="user">User (Tambah/Lihat)</option>
+                <option value="admin">Admin (Full Akses)</option>
+              </select>
+            </div>
+            <div className="flex gap-2">
+              <button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded transition-colors shadow-sm">
+                Tambah User
+              </button>
+            </div>
+          </form>
         </div>
       )}
 

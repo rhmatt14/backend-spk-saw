@@ -21,6 +21,11 @@ class SupplierBaru(BaseModel):
     nama: str
     nilai: Dict[int, float]
 
+class UserBaru(BaseModel):
+    username: str
+    password: str
+    role: str
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
@@ -147,6 +152,8 @@ def tambah_supplier(supp: SupplierBaru, user_aktif: dict = Depends(verifikasi_to
 # --- ENDPOINT UNTUK EDIT DATA (UPDATE) ---
 @app.put("/api/edit-supplier/{id_supplier}")
 def edit_supplier(id_supplier: int, supp: SupplierBaru, user_aktif: dict = Depends(verifikasi_token)):
+    if user_aktif.get('role') != 'admin':
+        raise HTTPException(status_code=403, detail="Hanya admin yang boleh mengedit data!")
     db = get_db()
     cursor = db.cursor()
     
@@ -165,6 +172,8 @@ def edit_supplier(id_supplier: int, supp: SupplierBaru, user_aktif: dict = Depen
 # --- ENDPOINT UNTUK HAPUS DATA (DELETE) ---
 @app.delete("/api/hapus-supplier/{id_supplier}")
 def hapus_supplier(id_supplier: int, user_aktif: dict = Depends(verifikasi_token)):
+    if user_aktif.get('role') != 'admin':
+        raise HTTPException(status_code=403, detail="Hanya admin yang boleh menghapus data!")
     db = get_db()
     cursor = db.cursor()
     
@@ -177,3 +186,30 @@ def hapus_supplier(id_supplier: int, user_aktif: dict = Depends(verifikasi_token
     cursor.close()
     db.close()
     return {"message": "Data berhasil dihapus!"}
+
+# --- ENDPOINT UNTUK TAMBAH USER ---
+@app.post("/api/tambah-user")
+def tambah_user(user_baru: UserBaru, user_aktif: dict = Depends(verifikasi_token)):
+    if user_aktif.get('role') != 'admin':
+        raise HTTPException(status_code=403, detail="Hanya admin yang boleh menambah user!")
+        
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    
+    # Cek apakah username sudah ada
+    cursor.execute("SELECT * FROM tb_users WHERE username = %s", (user_baru.username,))
+    if cursor.fetchone():
+        cursor.close()
+        db.close()
+        raise HTTPException(status_code=400, detail="Username sudah dipakai!")
+        
+    # Hash password menggunakan bcrypt
+    hashed_pw = bcrypt.hashpw(user_baru.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    
+    cursor.execute("INSERT INTO tb_users (username, password, role) VALUES (%s, %s, %s)", 
+                   (user_baru.username, hashed_pw, user_baru.role))
+    
+    db.commit()
+    cursor.close()
+    db.close()
+    return {"message": f"User {user_baru.username} berhasil ditambahkan!"}

@@ -22,6 +22,7 @@ const Login = ({ setSudahLogin }) => {
 
       if (response.ok) {
         localStorage.setItem('token_spk', data.token);
+        localStorage.setItem('role_spk', data.role);
         setSudahLogin(true);
       } else {
         setError(data.detail || 'Login gagal, Bos!');

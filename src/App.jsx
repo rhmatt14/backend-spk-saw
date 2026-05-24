@@ -17,6 +17,7 @@ function App() {
   // Fungsi Logout 
   const handleLogout = () => {
     localStorage.removeItem('token_spk'); // Buang tiketnya
+    localStorage.removeItem('role_spk'); // Buang rolenya
     setSudahLogin(false); // Kunci lagi halamannya
   };
 
