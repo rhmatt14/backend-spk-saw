@@ -38,7 +38,14 @@ const SAWCalculator = () => {
         },
         body: JSON.stringify(newUser)
       });
-      const data = await response.json();
+      
+      let data;
+      try {
+        data = await response.json();
+      } catch (e) {
+        throw new Error(`Server tidak mengembalikan JSON. Status: ${response.status}`);
+      }
+
       if (response.ok) {
         alert("User berhasil ditambahkan!");
         setNewUser({ username: '', password: '', role: 'user' });
@@ -46,7 +53,7 @@ const SAWCalculator = () => {
         alert(data.detail || "Gagal menambah user.");
       }
     } catch (error) {
-      alert("Error menghubungi server.");
+      alert("Error dari server: " + error.message);
     }
   };
 
