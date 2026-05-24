@@ -1,2 +1,0 @@
-[tool.vercel]
-entrypoint = "backend_spk.main:app"
