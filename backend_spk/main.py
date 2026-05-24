@@ -196,20 +196,29 @@ def tambah_user(user_baru: UserBaru, user_aktif: dict = Depends(verifikasi_token
     db = get_db()
     cursor = db.cursor(dictionary=True)
     
-    # Cek apakah username sudah ada
-    cursor.execute("SELECT * FROM tb_users WHERE username = %s", (user_baru.username,))
-    if cursor.fetchone():
+    try:
+        # Cek apakah username sudah ada
+        cursor.execute("SELECT * FROM tb_users WHERE username = %s", (user_baru.username,))
+        if cursor.fetchone():
+            cursor.close()
+            db.close()
+            raise HTTPException(status_code=400, detail="Username sudah dipakai!")
+            
+        # Hash password menggunakan bcrypt
+        hashed_pw = bcrypt.hashpw(user_baru.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        
+        cursor.execute("INSERT INTO tb_users (username, password, role) VALUES (%s, %s, %s)", 
+                       (user_baru.username, hashed_pw, user_baru.role))
+        
+        db.commit()
+    except Exception as e:
         cursor.close()
         db.close()
-        raise HTTPException(status_code=400, detail="Username sudah dipakai!")
-        
-    # Hash password menggunakan bcrypt
-    hashed_pw = bcrypt.hashpw(user_baru.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        # Jika error bukan HTTPException, kembalikan detail errornya
+        if isinstance(e, HTTPException):
+            raise e
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
     
-    cursor.execute("INSERT INTO tb_users (username, password, role) VALUES (%s, %s, %s)", 
-                   (user_baru.username, hashed_pw, user_baru.role))
-    
-    db.commit()
     cursor.close()
     db.close()
     return {"message": f"User {user_baru.username} berhasil ditambahkan!"}
