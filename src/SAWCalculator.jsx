@@ -16,6 +16,7 @@ const SAWCalculator = () => {
 
   // --- TAMBAHAN FITUR DARK MODE ---
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
 
   // --- ROLE ---
   const [userRole, setUserRole] = useState(null);
@@ -244,14 +245,49 @@ const SAWCalculator = () => {
     <div className={`p-8 min-h-screen font-sans transition-colors duration-500 ${themeBg}`}>
       
       {/* HEADER & TOMBOL SAKLAR DARK MODE */}
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between items-center mb-8 gap-4">
         <h1 className={`text-3xl font-bold ${textTitle}`}>Sistem Pendukung Keputusan (SAW)</h1>
-        <button 
-          onClick={() => setIsDarkMode(!isDarkMode)} 
-          className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all shadow-md ${isDarkMode ? 'bg-amber-400 text-slate-900 hover:bg-amber-300' : 'bg-slate-800 text-white hover:bg-slate-700'}`}
-        >
-          {isDarkMode ? '☀️' : '🌙'}
-        </button>
+        
+        <div className="flex items-center gap-4">
+          {/* ADMIN PANEL: TAMBAH USER */}
+          {userRole === 'admin' && (
+            <div className="relative">
+              <button 
+                onClick={() => setShowAdminPanel(!showAdminPanel)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all shadow-md ${isDarkMode ? 'bg-emerald-600 text-white hover:bg-emerald-500' : 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border border-emerald-300'}`}
+              >
+                🛡️
+              </button>
+              
+              {showAdminPanel && (
+                <div className={`absolute right-0 top-12 p-4 rounded-lg shadow-xl border-t-4 border-emerald-600 transition-colors duration-500 flex flex-col justify-center z-50 min-w-max ${cardBg}`}>
+                  <div className="flex justify-between items-center mb-3">
+                    <h2 className={`text-sm font-bold ${textTitle}`}>🛡️ tambah user</h2>
+                    <button onClick={() => setShowAdminPanel(false)} className="text-gray-500 hover:text-red-500 text-xs">❌</button>
+                  </div>
+                  <form onSubmit={handleTambahUser} className="flex flex-col gap-3">
+                    <input placeholder="Username" required type="text" className={`border p-2 text-sm rounded transition-colors ${inputBg}`} value={newUser.username} onChange={(e) => setNewUser({...newUser, username: e.target.value})} />
+                    <input placeholder="Password" required type="password" className={`border p-2 text-sm rounded transition-colors ${inputBg}`} value={newUser.password} onChange={(e) => setNewUser({...newUser, password: e.target.value})} />
+                    <select required className={`border p-2 text-sm rounded transition-colors ${inputBg}`} value={newUser.role} onChange={(e) => setNewUser({...newUser, role: e.target.value})}>
+                      <option value="user">User</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                    <button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 text-sm rounded transition-colors shadow-sm">
+                      Tambah
+                    </button>
+                  </form>
+                </div>
+              )}
+            </div>
+          )}
+
+          <button 
+            onClick={() => setIsDarkMode(!isDarkMode)} 
+            className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all shadow-md whitespace-nowrap ${isDarkMode ? 'bg-amber-400 text-slate-900 hover:bg-amber-300' : 'bg-slate-800 text-white hover:bg-slate-700'}`}
+          >
+            {isDarkMode ? '☀️' : '🌙'}
+          </button>
+        </div>
       </div>
       
       {/* KOTAK FORM */}
@@ -356,35 +392,6 @@ const SAWCalculator = () => {
             <br/><br/>
             Supplier ini terpilih karena memiliki perbandingan yang paling optimal antara kriteria biaya (seperti harga barang dan ongkos kirim) dengan kriteria keuntungan (seperti kualitas dan layanan garansi), menjadikannya kandidat paling efisien dan menguntungkan bagi perusahaan.
           </p>
-        </div>
-      )}
-
-      {/* ADMIN PANEL: TAMBAH USER */}
-      {userRole === 'admin' && (
-        <div className={`mt-8 p-6 rounded-lg shadow-md border-t-4 border-emerald-600 transition-colors duration-500 ${cardBg}`}>
-          <h2 className={`text-xl font-bold mb-4 ${textTitle}`}>🛡️ Admin Panel - Tambah User</h2>
-          <form onSubmit={handleTambahUser} className="flex flex-wrap gap-4 items-end">
-            <div className="flex flex-col">
-              <label className={`text-sm font-semibold mb-1 ${textSubtitle}`}>Username</label>
-              <input required type="text" className={`border p-2 rounded w-48 transition-colors ${inputBg}`} value={newUser.username} onChange={(e) => setNewUser({...newUser, username: e.target.value})} />
-            </div>
-            <div className="flex flex-col">
-              <label className={`text-sm font-semibold mb-1 ${textSubtitle}`}>Password</label>
-              <input required type="password" className={`border p-2 rounded w-48 transition-colors ${inputBg}`} value={newUser.password} onChange={(e) => setNewUser({...newUser, password: e.target.value})} />
-            </div>
-            <div className="flex flex-col">
-              <label className={`text-sm font-semibold mb-1 ${textSubtitle}`}>Role</label>
-              <select required className={`border p-2 rounded w-56 transition-colors ${inputBg}`} value={newUser.role} onChange={(e) => setNewUser({...newUser, role: e.target.value})}>
-                <option value="user">User (Tambah/Lihat)</option>
-                <option value="admin">Admin (Full Akses)</option>
-              </select>
-            </div>
-            <div className="flex gap-2">
-              <button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded transition-colors shadow-sm">
-                Tambah User
-              </button>
-            </div>
-          </form>
         </div>
       )}
 
